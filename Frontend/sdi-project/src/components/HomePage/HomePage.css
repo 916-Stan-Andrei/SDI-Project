@@ -1,0 +1,25 @@
+.container {
+  text-align: center;
+  margin-top: 50px;
+}
+
+.heading {
+  font-size: 36px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.btn {
+  padding: 10px 20px;
+  font-size: 18px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background-color: #0056b3;
+}
+  
