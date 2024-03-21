@@ -1,6 +1,6 @@
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Ticket from "../../entities/Ticket";
-import { useState } from "react";
 import ConfirmationModal from "../DeleteConfirmationModal/ConfirmationModal";
 import "./ListOfTickets.css";
 import toast from "react-hot-toast";
@@ -15,7 +15,10 @@ function ListOfTickets({ tickets, setTickets }: ListOfTicketsProps) {
     null
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedTickets, setSelectedTickets] = useState<number[]>([]);
+  const [isDeleteMultipleMode, setIsDeleteMultipleMode] = useState(false);
 
+  // Navigation
   const navigate = useNavigate();
 
   const handleAddTicket = () => {
@@ -34,6 +37,7 @@ function ListOfTickets({ tickets, setTickets }: ListOfTicketsProps) {
     navigate("/");
   };
 
+  // Single delete
   const handleDeleteTicket = (ticketId: string | number) => {
     setDeleteTicketId(ticketId);
     setIsModalOpen(true);
@@ -41,7 +45,6 @@ function ListOfTickets({ tickets, setTickets }: ListOfTicketsProps) {
 
   const handleConfirmDelete = () => {
     if (deleteTicketId !== null) {
-      // Remove the ticket with the specified ID
       setTickets(tickets.filter((ticket) => ticket.id !== deleteTicketId));
       toast.success("Ticket deleted successfully");
     }
@@ -54,16 +57,74 @@ function ListOfTickets({ tickets, setTickets }: ListOfTicketsProps) {
     setDeleteTicketId(null);
   };
 
+  // Bulk delete
+  const toggleDeleteMultipleMode = () => {
+    setIsDeleteMultipleMode((prevMode) => !prevMode);
+    setSelectedTickets([]);
+  };
+
+  const handleDeleteSelected = () => {
+    setTickets(
+      tickets.filter((ticket) => !selectedTickets.includes(ticket.id))
+    );
+    setSelectedTickets([]);
+  };
+
+  const handleCheckboxChange = (ticketId: number) => {
+    setSelectedTickets((prevState) => {
+      if (prevState.includes(ticketId)) {
+        return prevState.filter((id) => id !== ticketId);
+      } else {
+        return [...prevState, ticketId];
+      }
+    });
+  };
+
+  // Export tickets to CSV
+  const exportToCSV = () => {
+    const csvContent = "data:text/csv;charset=utf-8,";
+    const header = Object.keys(tickets[0]).join(",");
+    const rows = tickets.map((ticket) => Object.values(ticket).join(","));
+    const csv = [header, ...rows].join("\n");
+    const encodedURI = encodeURI(csvContent + csv);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedURI);
+    link.setAttribute("download", "tickets.csv");
+    document.body.appendChild(link);
+    link.click();
+  };
+
   return (
     <div className="ticket-list-container">
       <h2>Ticket List</h2>
-      <button
-        type="button"
-        className="btn btn-primary"
-        onClick={handleAddTicket}
-      >
-        Add
-      </button>
+      <div>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={handleAddTicket}
+        >
+          Add
+        </button>
+        <button
+          type="button"
+          className="btn btn-danger"
+          onClick={toggleDeleteMultipleMode}
+        >
+          {!isDeleteMultipleMode ? "Delete Multiple" : "Normal Delete"}
+        </button>
+        {isDeleteMultipleMode && (
+          <button
+            type="button"
+            className="btn btn-danger"
+            onClick={handleDeleteSelected}
+          >
+            Delete Selected
+          </button>
+        )}
+        <button type="button" className="btn btn-primary" onClick={exportToCSV}>
+          Export CSV
+        </button>
+      </div>
       <table className="table">
         <thead>
           <tr>
@@ -92,13 +153,22 @@ function ListOfTickets({ tickets, setTickets }: ListOfTicketsProps) {
                 >
                   Edit
                 </button>
-                <button
-                  type="button"
-                  className="btn btn-danger"
-                  onClick={() => handleDeleteTicket(ticket.id)}
-                >
-                  Delete
-                </button>
+                {!isDeleteMultipleMode && (
+                  <button
+                    type="button"
+                    className="btn btn-danger"
+                    onClick={() => handleDeleteTicket(ticket.id)}
+                  >
+                    Delete
+                  </button>
+                )}
+                {isDeleteMultipleMode && (
+                  <input
+                    type="checkbox"
+                    checked={selectedTickets.includes(ticket.id)}
+                    onChange={() => handleCheckboxChange(ticket.id)}
+                  ></input>
+                )}
               </td>
             </tr>
           ))}
