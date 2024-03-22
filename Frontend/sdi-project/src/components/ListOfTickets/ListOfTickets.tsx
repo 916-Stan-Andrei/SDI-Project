@@ -15,8 +15,14 @@ function ListOfTickets({ tickets, setTickets }: ListOfTicketsProps) {
     null
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedTickets, setSelectedTickets] = useState<number[]>([]);
+  const [selectedTicketsToDelete, setSelectedTicketsToDelete] = useState<
+    number[]
+  >([]);
   const [isDeleteMultipleMode, setIsDeleteMultipleMode] = useState(false);
+  const [selectedTicketsToExport, setSelectedTicketsToExport] = useState<
+    number[]
+  >([]);
+  const [isExportMultipleMode, setIsExportMultipleMode] = useState(false);
 
   // Navigation
   const navigate = useNavigate();
@@ -60,18 +66,18 @@ function ListOfTickets({ tickets, setTickets }: ListOfTicketsProps) {
   // Bulk delete
   const toggleDeleteMultipleMode = () => {
     setIsDeleteMultipleMode((prevMode) => !prevMode);
-    setSelectedTickets([]);
+    setSelectedTicketsToDelete([]);
   };
 
   const handleDeleteSelected = () => {
     setTickets(
-      tickets.filter((ticket) => !selectedTickets.includes(ticket.id))
+      tickets.filter((ticket) => !selectedTicketsToDelete.includes(ticket.id))
     );
-    setSelectedTickets([]);
+    setSelectedTicketsToDelete([]);
   };
 
-  const handleCheckboxChange = (ticketId: number) => {
-    setSelectedTickets((prevState) => {
+  const handleCheckboxChangeForDelete = (ticketId: number) => {
+    setSelectedTicketsToDelete((prevState) => {
       if (prevState.includes(ticketId)) {
         return prevState.filter((id) => id !== ticketId);
       } else {
@@ -80,18 +86,58 @@ function ListOfTickets({ tickets, setTickets }: ListOfTicketsProps) {
     });
   };
 
-  // Export tickets to CSV
-  const exportToCSV = () => {
-    const csvContent = "data:text/csv;charset=utf-8,";
-    const header = Object.keys(tickets[0]).join(",");
-    const rows = tickets.map((ticket) => Object.values(ticket).join(","));
-    const csv = [header, ...rows].join("\n");
-    const encodedURI = encodeURI(csvContent + csv);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedURI);
-    link.setAttribute("download", "tickets.csv");
-    document.body.appendChild(link);
-    link.click();
+  // Export
+  const toggleExportMultipleMode = () => {
+    setIsExportMultipleMode((prevMode) => !prevMode);
+    setSelectedTicketsToExport([]);
+  };
+
+  const handleCheckboxChangeForExport = (ticketId: number) => {
+    setSelectedTicketsToExport((prevState) => {
+      if (prevState.includes(ticketId)) {
+        return prevState.filter((id) => id !== ticketId);
+      } else {
+        return [...prevState, ticketId];
+      }
+    });
+  };
+
+  const handleExportToJSONSelected = () => {
+    const selectedTickets = tickets.filter((ticket) =>
+      selectedTicketsToExport.includes(ticket.id)
+    );
+    const json = JSON.stringify(selectedTickets, null, 2);
+    // Code to download JSON file
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "tickets.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportToCSVSelected = () => {
+    const selectedTickets = tickets.filter((ticket) =>
+      selectedTicketsToExport.includes(ticket.id)
+    );
+    const csv = selectedTickets
+      .map((ticket) => {
+        return `id: ${ticket.id}, Name: ${ticket.eventName}, Date: ${ticket.eventDate}, Purchase Date: ${ticket.purchaseDate}, Type: ${ticket.type}, Priority: ${ticket.ticketPriorityLevel}`;
+      })
+      .join("\n");
+    // Code to download CSV file
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "tickets.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -121,9 +167,39 @@ function ListOfTickets({ tickets, setTickets }: ListOfTicketsProps) {
             Delete Selected
           </button>
         )}
-        <button type="button" className="btn btn-primary" onClick={exportToCSV}>
-          Export CSV
-        </button>
+        {isExportMultipleMode ? (
+          <>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={handleExportToJSONSelected}
+            >
+              Export to JSON
+            </button>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={handleExportToCSVSelected}
+            >
+              Export to CSV
+            </button>
+            <button
+              type="button"
+              className="btn btn-danger"
+              onClick={toggleExportMultipleMode}
+            >
+              Exit Export Mode
+            </button>
+          </>
+        ) : (
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={toggleExportMultipleMode}
+          >
+            Export
+          </button>
+        )}
       </div>
       <table className="table">
         <thead>
@@ -165,8 +241,15 @@ function ListOfTickets({ tickets, setTickets }: ListOfTicketsProps) {
                 {isDeleteMultipleMode && (
                   <input
                     type="checkbox"
-                    checked={selectedTickets.includes(ticket.id)}
-                    onChange={() => handleCheckboxChange(ticket.id)}
+                    checked={selectedTicketsToDelete.includes(ticket.id)}
+                    onChange={() => handleCheckboxChangeForDelete(ticket.id)}
+                  ></input>
+                )}
+                {isExportMultipleMode && (
+                  <input
+                    type="checkbox"
+                    checked={selectedTicketsToExport.includes(ticket.id)}
+                    onChange={() => handleCheckboxChangeForExport(ticket.id)}
                   ></input>
                 )}
               </td>
