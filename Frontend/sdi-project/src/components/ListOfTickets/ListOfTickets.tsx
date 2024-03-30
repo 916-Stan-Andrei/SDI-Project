@@ -151,18 +151,21 @@ function ListOfTickets({ tickets, setTickets }: ListOfTicketsProps) {
         >
           Add
         </button>
-        <button
-          type="button"
-          className="btn btn-danger"
-          onClick={toggleDeleteMultipleMode}
-        >
-          {!isDeleteMultipleMode ? "Delete Multiple" : "Normal Delete"}
-        </button>
+        {!isExportMultipleMode && (
+          <button
+            type="button"
+            className="btn btn-danger"
+            onClick={toggleDeleteMultipleMode}
+          >
+            {!isDeleteMultipleMode ? "Delete Multiple" : "Normal Delete"}
+          </button>
+        )}
         {isDeleteMultipleMode && (
           <button
             type="button"
             className="btn btn-danger"
             onClick={handleDeleteSelected}
+            disabled={selectedTicketsToDelete.length === 0}
           >
             Delete Selected
           </button>
@@ -173,6 +176,7 @@ function ListOfTickets({ tickets, setTickets }: ListOfTicketsProps) {
               type="button"
               className="btn btn-primary"
               onClick={handleExportToJSONSelected}
+              disabled={selectedTicketsToExport.length === 0}
             >
               Export to JSON
             </button>
@@ -180,6 +184,7 @@ function ListOfTickets({ tickets, setTickets }: ListOfTicketsProps) {
               type="button"
               className="btn btn-primary"
               onClick={handleExportToCSVSelected}
+              disabled={selectedTicketsToExport.length === 0}
             >
               Export to CSV
             </button>
@@ -192,13 +197,15 @@ function ListOfTickets({ tickets, setTickets }: ListOfTicketsProps) {
             </button>
           </>
         ) : (
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={toggleExportMultipleMode}
-          >
-            Export
-          </button>
+          !isDeleteMultipleMode && (
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={toggleExportMultipleMode}
+            >
+              Export
+            </button>
+          )
         )}
       </div>
       <table className="table">
