@@ -28,4 +28,9 @@ public class TicketController {
     @DeleteMapping("/deleteTicket/{ticketId}")
     public void deleteTicket(@PathVariable int ticketId) { ticketService.deleteTicket(ticketId);}
 
+    @DeleteMapping("/deleteTickets")
+    public void deleteTicketsByIds(@RequestBody List<Integer> ticketIds) {
+        ticketService.deleteMultiple(ticketIds);
+    }
+
 }

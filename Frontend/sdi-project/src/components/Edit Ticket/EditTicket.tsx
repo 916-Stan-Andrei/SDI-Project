@@ -3,6 +3,7 @@ import Ticket from "../../entities/Ticket";
 import { useState } from "react";
 import "./EditTicket.css";
 import toast from "react-hot-toast";
+import { fetchTickets, updateTicket } from "../../services/ApiService";
 
 interface EditTicketProp {
   tickets: Ticket[];
@@ -21,7 +22,9 @@ function EditTicketWrapper({ tickets, setTickets }: EditTicketProp) {
 
   // Find the ticket with the given id
   const ticketToEdit = tickets.find((ticket) => {
-    return ticket.id.toString() === id;
+    if (ticket.id !== undefined) {
+      return ticket.id.toString() === id;
+    }
   });
 
   if (!ticketToEdit) {
@@ -48,7 +51,7 @@ function EditTicket({ ticketToEdit, tickets, setTickets }: EditableTicket) {
     ticketToEdit.ticketPriorityLevel.toString()
   );
 
-  const handleEdit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleEdit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (
@@ -80,20 +83,17 @@ function EditTicket({ ticketToEdit, tickets, setTickets }: EditableTicket) {
     }
 
     // Create a new array with the updated ticket
-    const updatedTickets = tickets.map((ticket) =>
-      ticket.id.toString() === ticketToEdit.id.toString()
-        ? {
-            ...ticket,
-            eventName,
-            eventDate,
-            purchaseDate,
-            type,
-            ticketPriorityLevel: Number(ticketPriorityLevel),
-          }
-        : ticket
-    );
+    const updatedTicket: Ticket = {
+      id: ticketToEdit.id,
+      eventName,
+      eventDate,
+      purchaseDate,
+      type,
+      ticketPriorityLevel: Number(ticketPriorityLevel), // Convert ticketPriorityLevel to a number
+    };
 
-    setTickets(updatedTickets);
+    await updateTicket(updatedTicket);
+    await fetchTickets({ tickets, setTickets });
     toast.success("The ticket modifications are saved");
     navigate("/tickets");
   };

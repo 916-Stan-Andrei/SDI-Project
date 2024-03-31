@@ -1,6 +1,6 @@
 
 interface Ticket {
-    id: number;
+    id?: number;
     eventName: string;
     eventDate: string;
     purchaseDate: string;

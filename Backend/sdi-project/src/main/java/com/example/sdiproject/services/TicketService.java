@@ -2,6 +2,7 @@ package com.example.sdiproject.services;
 
 import com.example.sdiproject.entities.Ticket;
 import com.example.sdiproject.repositories.TicketRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,4 +32,7 @@ public class TicketService {
     }
 
     public void deleteTicket(int ticketId) { ticketRepository.deleteById(ticketId);}
+
+    @Transactional
+    public void deleteMultiple(List<Integer> tickedIds) {ticketRepository.deleteTicketsWithIds(tickedIds);}
 }

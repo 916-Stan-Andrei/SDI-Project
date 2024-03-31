@@ -8,21 +8,32 @@ import TicketData from "./data/TicketData";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import EditTicketWrapper from "./components/Edit Ticket/EditTicket";
 import { Toaster } from "react-hot-toast";
+import Ticket from "./entities/Ticket";
+import { fetchTickets } from "./services/ApiService";
 
 function App() {
-  const [tickets, setTickets] = useState(() => {
-    const saved = localStorage.getItem("tickets");
-    if (saved) {
-      const initialValue = JSON.parse(saved);
-      return initialValue || "";
-    } else {
-      return TicketData;
-    }
-  });
+  // const [tickets, setTickets] = useState(() => {
+  //   const saved = localStorage.getItem("tickets");
+  //   if (saved) {
+  //     const initialValue = JSON.parse(saved);
+  //     return initialValue || "";
+  //   } else {
+  //     return TicketData;
+  //   }
+  // });
+
+  // useEffect(() => {
+  //   localStorage.setItem("tickets", JSON.stringify(tickets));
+  // }, [tickets]);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
 
   useEffect(() => {
-    localStorage.setItem("tickets", JSON.stringify(tickets));
-  }, [tickets]);
+    const fetchInitialTickets = async () => {
+      await fetchTickets({ tickets, setTickets });
+    };
+
+    fetchInitialTickets();
+  }, []);
 
   const router = createBrowserRouter([
     {

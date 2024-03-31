@@ -1,6 +1,8 @@
 import { useNavigate, useParams } from "react-router-dom";
 import Ticket from "../../entities/Ticket";
 import "./TicketDetails.css";
+import { getTicket } from "../../services/ApiService";
+import { useEffect, useState } from "react";
 
 interface TicketDetailsProp {
   tickets: Ticket[];
@@ -10,12 +12,21 @@ function TicketDetails({ tickets }: TicketDetailsProp) {
   const navigate = useNavigate();
 
   const { id } = useParams<{ id: string }>(); // Fetch the id from URL path
-  console.log(id);
+  const [ticket, setTicket] = useState<Ticket | null>(null);
 
   // Find the ticket with the given id
-  const ticket = tickets.find((ticket) => {
-    return ticket.id.toString() === id;
-  });
+  useEffect(() => {
+    const fetchTicket = async () => {
+      try {
+        const data = await getTicket(Number(id)); // Assuming your API endpoint for fetching a ticket is /api/tickets/:id
+        setTicket(data); // Update the ticket state with the fetched ticket
+      } catch (error) {
+        console.error("Error fetching ticket:", error);
+      }
+    };
+
+    fetchTicket(); // Call the fetchTicket function when the component mounts
+  }, [id]);
 
   if (!ticket) {
     return <div>Ticket not found!</div>;

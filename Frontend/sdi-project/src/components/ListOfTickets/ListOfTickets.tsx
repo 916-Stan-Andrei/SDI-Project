@@ -4,6 +4,11 @@ import Ticket from "../../entities/Ticket";
 import ConfirmationModal from "../DeleteConfirmationModal/ConfirmationModal";
 import "./ListOfTickets.css";
 import toast from "react-hot-toast";
+import {
+  deleteMultiple,
+  deleteTicket,
+  fetchTickets,
+} from "../../services/ApiService";
 
 interface ListOfTicketsProps {
   tickets: Ticket[];
@@ -31,11 +36,11 @@ function ListOfTickets({ tickets, setTickets }: ListOfTicketsProps) {
     navigate("/ticket/add");
   };
 
-  const handleViewDetails = (ticketId: number) => {
+  const handleViewDetails = (ticketId: number | undefined) => {
     navigate(`/ticket/details/${ticketId}`);
   };
 
-  const handleEdit = (ticketId: number) => {
+  const handleEdit = (ticketId: number | undefined) => {
     navigate(`/ticket/edit/${ticketId}`);
   };
 
@@ -44,14 +49,15 @@ function ListOfTickets({ tickets, setTickets }: ListOfTicketsProps) {
   };
 
   // Single delete
-  const handleDeleteTicket = (ticketId: string | number) => {
+  const handleDeleteTicket = (ticketId: string | number | null) => {
     setDeleteTicketId(ticketId);
     setIsModalOpen(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (deleteTicketId !== null) {
-      setTickets(tickets.filter((ticket) => ticket.id !== deleteTicketId));
+      await deleteTicket(Number(deleteTicketId));
+      await fetchTickets({ tickets, setTickets });
       toast.success("Ticket deleted successfully");
     }
     setIsModalOpen(false);
@@ -69,10 +75,9 @@ function ListOfTickets({ tickets, setTickets }: ListOfTicketsProps) {
     setSelectedTicketsToDelete([]);
   };
 
-  const handleDeleteSelected = () => {
-    setTickets(
-      tickets.filter((ticket) => !selectedTicketsToDelete.includes(ticket.id))
-    );
+  const handleDeleteSelected = async () => {
+    await deleteMultiple(selectedTicketsToDelete);
+    await fetchTickets({ tickets, setTickets });
     setSelectedTicketsToDelete([]);
   };
 
@@ -103,8 +108,9 @@ function ListOfTickets({ tickets, setTickets }: ListOfTicketsProps) {
   };
 
   const handleExportToJSONSelected = () => {
-    const selectedTickets = tickets.filter((ticket) =>
-      selectedTicketsToExport.includes(ticket.id)
+    const selectedTickets = tickets.filter(
+      (ticket) =>
+        ticket.id !== undefined && selectedTicketsToExport.includes(ticket.id)
     );
     const json = JSON.stringify(selectedTickets, null, 2);
     // Code to download JSON file
@@ -120,8 +126,9 @@ function ListOfTickets({ tickets, setTickets }: ListOfTicketsProps) {
   };
 
   const handleExportToCSVSelected = () => {
-    const selectedTickets = tickets.filter((ticket) =>
-      selectedTicketsToExport.includes(ticket.id)
+    const selectedTickets = tickets.filter(
+      (ticket) =>
+        ticket.id !== undefined && selectedTicketsToExport.includes(ticket.id)
     );
     const csv = selectedTickets
       .map((ticket) => {
@@ -240,7 +247,7 @@ function ListOfTickets({ tickets, setTickets }: ListOfTicketsProps) {
                   <button
                     type="button"
                     className="btn btn-danger"
-                    onClick={() => handleDeleteTicket(ticket.id)}
+                    onClick={() => handleDeleteTicket(ticket.id!)}
                   >
                     Delete
                   </button>
@@ -248,15 +255,15 @@ function ListOfTickets({ tickets, setTickets }: ListOfTicketsProps) {
                 {isDeleteMultipleMode && (
                   <input
                     type="checkbox"
-                    checked={selectedTicketsToDelete.includes(ticket.id)}
-                    onChange={() => handleCheckboxChangeForDelete(ticket.id)}
+                    checked={selectedTicketsToDelete.includes(ticket.id!)}
+                    onChange={() => handleCheckboxChangeForDelete(ticket.id!)}
                   ></input>
                 )}
                 {isExportMultipleMode && (
                   <input
                     type="checkbox"
-                    checked={selectedTicketsToExport.includes(ticket.id)}
-                    onChange={() => handleCheckboxChangeForExport(ticket.id)}
+                    checked={selectedTicketsToExport.includes(ticket.id!)}
+                    onChange={() => handleCheckboxChangeForExport(ticket.id!)}
                   ></input>
                 )}
               </td>

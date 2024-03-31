@@ -1,9 +1,9 @@
 import { useState } from "react";
-import TicketData from "../../data/TicketData";
 import Ticket from "../../entities/Ticket";
 import { useNavigate } from "react-router-dom";
 import "./AddTicket.css";
 import toast from "react-hot-toast";
+import { addTicket, fetchTickets } from "../../services/ApiService";
 
 interface AddTicketProps {
   tickets: Ticket[];
@@ -23,7 +23,7 @@ function AddTicket({ tickets, setTickets }: AddTicketProps) {
     navigate("/tickets");
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (
       !eventName ||
@@ -42,14 +42,14 @@ function AddTicket({ tickets, setTickets }: AddTicketProps) {
       return;
     }
     const newTicket: Ticket = {
-      id: tickets.length + 1,
       eventName,
       eventDate,
       purchaseDate,
       type,
       ticketPriorityLevel: Number(ticketPriorityLevel), // Convert ticketPriorityLevel to a number
     };
-    setTickets([...tickets, newTicket]); // Create a new array with the updated ticket added to it
+    await addTicket(newTicket);
+    await fetchTickets({ tickets, setTickets });
     toast.success("Ticket added!");
     navigate("/tickets"); // Navigate back to the home page
   };
