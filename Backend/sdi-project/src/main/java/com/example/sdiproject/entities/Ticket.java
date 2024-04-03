@@ -4,11 +4,10 @@ import jakarta.persistence.*;
 import lombok.ToString;
 
 @Entity
-@Table(name = "ticket")
+@Table(name = "TICKET")
 public class Ticket {
 
-    public Ticket(int id, String eventName, String eventDate, String purchaseDate, String type, int ticketPriorityLevel) {
-        this.id = id;
+    public Ticket(String eventName, String eventDate, String purchaseDate, String type, int ticketPriorityLevel) {
         this.eventName = eventName;
         this.eventDate = eventDate;
         this.purchaseDate = purchaseDate;
@@ -21,24 +20,23 @@ public class Ticket {
     }
 
 
-    @Column
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "event_name")
+    @Column(name = "EVENT_NAME")
     private String eventName;
 
-    @Column(name = "event_date")
+    @Column(name = "EVENT_DATE")
     private String eventDate;
 
-    @Column(name = "purcahse_date")
+    @Column(name = "PURCHASE_DATE")
     private String purchaseDate;
 
-    @Column(name = "type")
+    @Column(name = "TYPE")
     private String type;
 
-    @Column(name = "ticket_priority")
+    @Column(name = "TICKET_PRIORITY_LEVEl")
     private int ticketPriorityLevel;
 
     @Override
