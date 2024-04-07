@@ -18,8 +18,6 @@ public class Ticket {
     public Ticket() {
 
     }
-
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;

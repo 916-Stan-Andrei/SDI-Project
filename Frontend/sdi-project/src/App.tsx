@@ -1,40 +1,14 @@
-import { useEffect, useState } from "react";
 import "./App.css";
 import AddTicket from "./components/AddTicket/AddTicket";
 import HomePage from "./components/HomePage/HomePage";
 import ListOfTickets from "./components/ListOfTickets/ListOfTickets";
 import TicketDetails from "./components/TicketDetails/TicketDetails";
-import TicketData from "./data/TicketData";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import EditTicketWrapper from "./components/Edit Ticket/EditTicket";
+import EditTicket from "./components/Edit Ticket/EditTicket";
 import { Toaster } from "react-hot-toast";
-import Ticket from "./entities/Ticket";
-import { fetchTickets } from "./services/ApiService";
+import useTicketStore from "./zustandStores/ticketStore";
 
 function App() {
-  // const [tickets, setTickets] = useState(() => {
-  //   const saved = localStorage.getItem("tickets");
-  //   if (saved) {
-  //     const initialValue = JSON.parse(saved);
-  //     return initialValue || "";
-  //   } else {
-  //     return TicketData;
-  //   }
-  // });
-
-  // useEffect(() => {
-  //   localStorage.setItem("tickets", JSON.stringify(tickets));
-  // }, [tickets]);
-  const [tickets, setTickets] = useState<Ticket[]>([]);
-
-  useEffect(() => {
-    const fetchInitialTickets = async () => {
-      await fetchTickets({ tickets, setTickets });
-    };
-
-    fetchInitialTickets();
-  }, []);
-
   const router = createBrowserRouter([
     {
       path: "/",
@@ -42,19 +16,19 @@ function App() {
     },
     {
       path: "/tickets",
-      element: <ListOfTickets tickets={tickets} setTickets={setTickets} />,
+      element: <ListOfTickets />,
     },
     {
       path: "/ticket/add",
-      element: <AddTicket tickets={tickets} setTickets={setTickets} />,
+      element: <AddTicket />,
     },
     {
       path: "/ticket/details/:id",
-      element: <TicketDetails tickets={tickets} />,
+      element: <TicketDetails />,
     },
     {
       path: "/ticket/edit/:id",
-      element: <EditTicketWrapper tickets={tickets} setTickets={setTickets} />,
+      element: <EditTicket />,
     },
   ]);
   return (

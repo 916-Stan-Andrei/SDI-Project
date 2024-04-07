@@ -5,12 +5,7 @@ import "./AddTicket.css";
 import toast from "react-hot-toast";
 import { addTicket, fetchTickets } from "../../services/ApiService";
 
-interface AddTicketProps {
-  tickets: Ticket[];
-  setTickets: (tickets: Ticket[]) => void;
-}
-
-function AddTicket({ tickets, setTickets }: AddTicketProps) {
+function AddTicket() {
   const navigate = useNavigate();
 
   const [eventName, setEventName] = useState("");
@@ -49,7 +44,7 @@ function AddTicket({ tickets, setTickets }: AddTicketProps) {
       ticketPriorityLevel: Number(ticketPriorityLevel), // Convert ticketPriorityLevel to a number
     };
     await addTicket(newTicket);
-    await fetchTickets({ tickets, setTickets });
+    await fetchTickets();
     toast.success("Ticket added!");
     navigate("/tickets"); // Navigate back to the home page
   };

@@ -30,9 +30,7 @@ jest.mock("react-router-dom", () => ({
 const setTicketsMock = jest.fn();
 
 describe("ListOfTickets", () => {
-  const { getByText, getByRole, getAllByRole } = render(
-    <ListOfTickets tickets={tickets} setTickets={setTicketsMock} />
-  );
+  const { getByText, getByRole, getAllByRole } = render(<ListOfTickets />);
 
   test("renders title ant table data correctly", () => {
     expect(getByText("Ticket List")).toBeInTheDocument();

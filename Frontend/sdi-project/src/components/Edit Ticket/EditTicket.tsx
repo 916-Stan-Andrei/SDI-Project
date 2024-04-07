@@ -1,55 +1,51 @@
 import { useNavigate, useParams } from "react-router-dom";
 import Ticket from "../../entities/Ticket";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./EditTicket.css";
 import toast from "react-hot-toast";
-import { fetchTickets, updateTicket } from "../../services/ApiService";
+import {
+  fetchTickets,
+  getTicket,
+  updateTicket,
+} from "../../services/ApiService";
 
-interface EditTicketProp {
-  tickets: Ticket[];
-  setTickets: (tickets: Ticket[]) => void;
-}
-
-interface EditableTicket {
-  ticketToEdit: Ticket;
-  tickets: Ticket[];
-  setTickets: (tickets: Ticket[]) => void;
-}
-
-function EditTicketWrapper({ tickets, setTickets }: EditTicketProp) {
-  const { id } = useParams<{ id: string }>(); // Fetch the id from URL path
+function EditTicket() {
+  const { id } = useParams<{ id: string }>();
   console.log(id);
 
-  // Find the ticket with the given id
-  const ticketToEdit = tickets.find((ticket) => {
-    if (ticket.id !== undefined) {
-      return ticket.id.toString() === id;
-    }
-  });
+  const [ticket, setTicket] = useState<Ticket | null>(null);
 
-  if (!ticketToEdit) {
-    return <div>Ticket not found!</div>;
-  }
+  useEffect(() => {
+    const fetchTicket = async () => {
+      if (id) {
+        try {
+          const ticketData = await getTicket(parseInt(id));
+          setTicket(ticketData);
+        } catch (error) {
+          console.error("Error getting ticket: ", error);
+        }
+      }
+    };
 
-  return (
-    <EditTicket
-      ticketToEdit={ticketToEdit}
-      tickets={tickets}
-      setTickets={setTickets}
-    />
-  );
-}
+    fetchTicket();
+  }, [id]);
 
-function EditTicket({ ticketToEdit, tickets, setTickets }: EditableTicket) {
   const navigate = useNavigate();
+  const [eventName, setEventName] = useState("");
+  const [eventDate, setEventDate] = useState("");
+  const [purchaseDate, setPurchaseDate] = useState("");
+  const [type, setType] = useState("");
+  const [ticketPriorityLevel, setTicketPriorityLevel] = useState("");
 
-  const [eventName, setEventName] = useState(ticketToEdit.eventName);
-  const [eventDate, setEventDate] = useState(ticketToEdit.eventDate);
-  const [purchaseDate, setPurchaseDate] = useState(ticketToEdit.purchaseDate);
-  const [type, setType] = useState(ticketToEdit.type);
-  const [ticketPriorityLevel, setTicketPriorityLevel] = useState(
-    ticketToEdit.ticketPriorityLevel.toString()
-  );
+  useEffect(() => {
+    if (ticket) {
+      setEventName(ticket.eventName);
+      setEventDate(ticket.eventDate);
+      setPurchaseDate(ticket.purchaseDate);
+      setType(ticket.type);
+      setTicketPriorityLevel(ticket.ticketPriorityLevel.toString());
+    }
+  }, [ticket]);
 
   const handleEdit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -72,11 +68,11 @@ function EditTicket({ ticketToEdit, tickets, setTickets }: EditableTicket) {
     }
 
     if (
-      eventName === ticketToEdit.eventName &&
-      eventDate === ticketToEdit.eventDate &&
-      purchaseDate === ticketToEdit.purchaseDate &&
-      type === ticketToEdit.type &&
-      ticketPriorityLevel === ticketToEdit.ticketPriorityLevel.toString()
+      eventName === ticket?.eventName &&
+      eventDate === ticket?.eventDate &&
+      purchaseDate === ticket?.purchaseDate &&
+      type === ticket?.type &&
+      ticketPriorityLevel === ticket?.ticketPriorityLevel.toString()
     ) {
       toast.error("No changes detected. Please make modifications to save.");
       return;
@@ -84,7 +80,7 @@ function EditTicket({ ticketToEdit, tickets, setTickets }: EditableTicket) {
 
     // Create a new array with the updated ticket
     const updatedTicket: Ticket = {
-      id: ticketToEdit.id,
+      id: ticket?.id,
       eventName,
       eventDate,
       purchaseDate,
@@ -93,7 +89,7 @@ function EditTicket({ ticketToEdit, tickets, setTickets }: EditableTicket) {
     };
 
     await updateTicket(updatedTicket);
-    await fetchTickets({ tickets, setTickets });
+    await fetchTickets();
     toast.success("The ticket modifications are saved");
     navigate("/tickets");
   };
@@ -171,4 +167,4 @@ function EditTicket({ ticketToEdit, tickets, setTickets }: EditableTicket) {
   );
 }
 
-export default EditTicketWrapper;
+export default EditTicket;

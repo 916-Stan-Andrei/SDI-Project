@@ -8,7 +8,7 @@ interface TicketDetailsProp {
   tickets: Ticket[];
 }
 
-function TicketDetails({ tickets }: TicketDetailsProp) {
+function TicketDetails() {
   const navigate = useNavigate();
 
   const { id } = useParams<{ id: string }>(); // Fetch the id from URL path

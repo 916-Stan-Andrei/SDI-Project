@@ -22,7 +22,7 @@ const tickets: Ticket[] = [
 
 describe("TicketDetails ", () => {
   test("should render ticket details correctly", () => {
-    const { getByText } = render(<TicketDetails tickets={tickets} />);
+    const { getByText } = render(<TicketDetails />);
     expect(getByText("Ticket Details")).toBeInTheDocument();
     expect(getByText("Event Name: Event 1")).toBeInTheDocument();
     expect(getByText("Event Date: 2024-03-20")).toBeInTheDocument();

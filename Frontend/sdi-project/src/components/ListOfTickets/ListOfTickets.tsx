@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Ticket from "../../entities/Ticket";
 import ConfirmationModal from "../DeleteConfirmationModal/ConfirmationModal";
@@ -9,13 +9,17 @@ import {
   deleteTicket,
   fetchTickets,
 } from "../../services/ApiService";
+import useTicketStore from "../../zustandStores/ticketStore";
 
 interface ListOfTicketsProps {
   tickets: Ticket[];
-  setTickets: (tickets: Ticket[]) => void;
 }
 
-function ListOfTickets({ tickets, setTickets }: ListOfTicketsProps) {
+function ListOfTickets() {
+  const tickets = useTicketStore((state) => state.tickets);
+
+  const [loading, setLoading] = useState(true);
+
   const [deleteTicketId, setDeleteTicketId] = useState<string | number | null>(
     null
   );
@@ -28,8 +32,36 @@ function ListOfTickets({ tickets, setTickets }: ListOfTicketsProps) {
     number[]
   >([]);
   const [isExportMultipleMode, setIsExportMultipleMode] = useState(false);
+  const [isSaved, setIsSaved] = useState(true);
+
+  //Fetching tickets
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await fetchTickets();
+      } catch (error) {
+        console.error("Error fetching tickets:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // isSaved listener
+
+  useEffect(() => {
+    const unsubscribe = useTicketStore.subscribe((state) =>
+      setIsSaved(state.ticketsSaved)
+    );
+
+    return unsubscribe;
+  }, []);
 
   // Navigation
+
   const navigate = useNavigate();
 
   const handleAddTicket = () => {
@@ -57,7 +89,7 @@ function ListOfTickets({ tickets, setTickets }: ListOfTicketsProps) {
   const handleConfirmDelete = async () => {
     if (deleteTicketId !== null) {
       await deleteTicket(Number(deleteTicketId));
-      await fetchTickets({ tickets, setTickets });
+      await fetchTickets();
       toast.success("Ticket deleted successfully");
     }
     setIsModalOpen(false);
@@ -77,7 +109,7 @@ function ListOfTickets({ tickets, setTickets }: ListOfTicketsProps) {
 
   const handleDeleteSelected = async () => {
     await deleteMultiple(selectedTicketsToDelete);
-    await fetchTickets({ tickets, setTickets });
+    await fetchTickets();
     setSelectedTicketsToDelete([]);
   };
 
@@ -215,62 +247,78 @@ function ListOfTickets({ tickets, setTickets }: ListOfTicketsProps) {
           )
         )}
       </div>
-      <table className="table">
-        <thead>
-          <tr>
-            <th scope="col">Event Name</th>
-            <th scope="col">Event Date</th>
-            <th scope="col">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tickets.map((ticket) => (
-            <tr key={ticket.id}>
-              <td>{ticket.eventName}</td>
-              <td>{ticket.eventDate}</td>
-              <td>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={() => handleViewDetails(ticket.id)}
-                >
-                  View
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-warning"
-                  onClick={() => handleEdit(ticket.id)}
-                >
-                  Edit
-                </button>
-                {!isDeleteMultipleMode && (
+      {isSaved ? (
+        <div className="saved-flag">Saved</div>
+      ) : (
+        <div className="unsaved-flag">Unsaved</div>
+      )}
+      {!loading ? (
+        <table className="table">
+          <thead>
+            <tr>
+              <th scope="col">Event Name</th>
+              <th scope="col">Event Date</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tickets.map((ticket) => (
+              <tr key={ticket.id}>
+                <td>{ticket.eventName}</td>
+                <td>{ticket.eventDate}</td>
+                <td>
                   <button
                     type="button"
-                    className="btn btn-danger"
-                    onClick={() => handleDeleteTicket(ticket.id!)}
+                    className="btn btn-primary"
+                    onClick={() => handleViewDetails(ticket.id)}
                   >
-                    Delete
+                    View
                   </button>
-                )}
-                {isDeleteMultipleMode && (
-                  <input
-                    type="checkbox"
-                    checked={selectedTicketsToDelete.includes(ticket.id!)}
-                    onChange={() => handleCheckboxChangeForDelete(ticket.id!)}
-                  ></input>
-                )}
-                {isExportMultipleMode && (
-                  <input
-                    type="checkbox"
-                    checked={selectedTicketsToExport.includes(ticket.id!)}
-                    onChange={() => handleCheckboxChangeForExport(ticket.id!)}
-                  ></input>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                  <button
+                    type="button"
+                    className="btn btn-warning"
+                    onClick={() => handleEdit(ticket.id)}
+                  >
+                    Edit
+                  </button>
+                  {!isDeleteMultipleMode && (
+                    <button
+                      type="button"
+                      className="btn btn-danger"
+                      onClick={() => handleDeleteTicket(ticket.id!)}
+                    >
+                      Delete
+                    </button>
+                  )}
+                  {isDeleteMultipleMode && (
+                    <input
+                      type="checkbox"
+                      checked={selectedTicketsToDelete.includes(ticket.id!)}
+                      onChange={() => handleCheckboxChangeForDelete(ticket.id!)}
+                    ></input>
+                  )}
+                  {isExportMultipleMode && (
+                    <input
+                      type="checkbox"
+                      checked={selectedTicketsToExport.includes(ticket.id!)}
+                      onChange={() => handleCheckboxChangeForExport(ticket.id!)}
+                    ></input>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <div
+          className="d-flex justify-content-center align-items-center"
+          style={{ height: "50vh" }}
+        >
+          <div className="spinner-border" role="status">
+            <span className="sr-only"></span>
+          </div>
+        </div>
+      )}
       <button
         onClick={handleBackToHome}
         type="button"
