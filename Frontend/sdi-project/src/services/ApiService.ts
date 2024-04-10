@@ -1,12 +1,7 @@
-import tickets from '../api/tickets';
 import api from '../api/tickets';
 import Ticket from '../entities/Ticket';
 import useTicketStore from '../zustandStores/ticketStore';
 
-interface TicketsProps {
-    tickets: Ticket[];
-    setTickets: (tickets: Ticket[]) => void;
-  }
 
 export const fetchTickets = async () => {
     try {
@@ -21,7 +16,11 @@ export const fetchTickets = async () => {
     } catch (error) {
         useTicketStore.setState({ ticketsSaved: false });
 
-        console.error("Error fetching tickets!", error);
+        if (error instanceof Error) { 
+          console.error("Error fetching tickets!", error.message, error.stack); 
+      } else {
+          console.error("Error fetching tickets!", error);
+      }
         const storedTickets = localStorage.getItem('tickets');
         if (storedTickets) {
           const tickets = JSON.parse(storedTickets);

@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Ticket from "../../entities/Ticket";
 import ConfirmationModal from "../DeleteConfirmationModal/ConfirmationModal";
 import "./ListOfTickets.css";
 import toast from "react-hot-toast";
@@ -10,10 +9,7 @@ import {
   fetchTickets,
 } from "../../services/ApiService";
 import useTicketStore from "../../zustandStores/ticketStore";
-
-interface ListOfTicketsProps {
-  tickets: Ticket[];
-}
+import { Client } from "@stomp/stompjs";
 
 function ListOfTickets() {
   const tickets = useTicketStore((state) => state.tickets);
@@ -33,6 +29,8 @@ function ListOfTickets() {
   >([]);
   const [isExportMultipleMode, setIsExportMultipleMode] = useState(false);
   const [isSaved, setIsSaved] = useState(true);
+  const [client, setClient] = useState<Client | null>(null);
+  const [isConnected, setIsConnected] = useState<boolean>(false);
 
   //Fetching tickets
 
@@ -44,6 +42,11 @@ function ListOfTickets() {
         console.error("Error fetching tickets:", error);
       } finally {
         setLoading(false);
+      }
+      if (!useTicketStore.getState().ticketsSaved) {
+        toast.error(
+          "The server is not responding! Tickets retrieved via localStorage!"
+        );
       }
     };
 
@@ -59,6 +62,69 @@ function ListOfTickets() {
 
     return unsubscribe;
   }, []);
+
+  //Create a Stomp client
+
+  const handleConnect = () => {
+    if (!isConnected && !client) {
+      const newClient = new Client({
+        brokerURL: "ws://localhost:8080/sdi-websocket",
+      });
+
+      newClient.onConnect = () => {
+        console.log("Connected");
+        setIsConnected(true);
+      };
+
+      newClient.onDisconnect = () => {
+        console.log("Disconnected");
+        setIsConnected(false);
+      };
+
+      newClient.onWebSocketError = (error) => {
+        console.error("WebSocket error:", error);
+        setIsConnected(false);
+      };
+
+      newClient.onStompError = (frame) => {
+        console.error("Stomp error:", frame.headers["message"]);
+        setIsConnected(false);
+      };
+
+      newClient.activate();
+      setClient(newClient);
+    } else {
+      console.log("Already connected.");
+    }
+  };
+
+  // Function to handle disconnection
+  const handleDisconnect = () => {
+    if (isConnected) {
+      if (client) {
+        client.deactivate();
+        setIsConnected(false);
+      }
+    } else {
+      console.log("Already disconnected.");
+    }
+  };
+
+  const handleAddEntity = () => {
+    if (isConnected && client) {
+      client.publish({
+        destination: "/app/cronAdd",
+      });
+    } else {
+      console.error("WebSocket connection is not active.");
+    }
+  };
+
+  useEffect(() => {
+    if (isConnected && client) {
+      fetchTickets();
+    }
+  }, [isConnected, client, tickets]);
 
   // Navigation
 
@@ -181,6 +247,22 @@ function ListOfTickets() {
 
   return (
     <div className="ticket-list-container">
+      <div>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={handleConnect}
+        >
+          CronJob Start
+        </button>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={handleDisconnect}
+        >
+          CronJob End
+        </button>
+      </div>
       <h2>Ticket List</h2>
       <div>
         <button
