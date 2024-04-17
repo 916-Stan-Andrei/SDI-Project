@@ -7,7 +7,7 @@ import {
   deleteMultiple,
   deleteTicket,
   fetchTickets,
-} from "../../services/ApiService";
+} from "../../services/TicketService";
 import useTicketStore from "../../zustandStores/ticketStore";
 import { Client } from "@stomp/stompjs";
 
@@ -110,15 +110,15 @@ function ListOfTickets() {
     }
   };
 
-  const handleAddEntity = () => {
-    if (isConnected && client) {
-      client.publish({
-        destination: "/app/cronAdd",
-      });
-    } else {
-      console.error("WebSocket connection is not active.");
-    }
-  };
+  // const handleAddEntity = () => {
+  //   if (isConnected && client) {
+  //     client.publish({
+  //       destination: "/app/cronAdd",
+  //     });
+  //   } else {
+  //     console.error("WebSocket connection is not active.");
+  //   }
+  // };
 
   useEffect(() => {
     if (isConnected && client) {
@@ -144,6 +144,10 @@ function ListOfTickets() {
 
   const handleBackToHome = () => {
     navigate("/");
+  };
+
+  const handleAttendees = (ticketId: number | undefined) => {
+    navigate(`/attendees/${ticketId}`);
   };
 
   // Single delete
@@ -208,7 +212,8 @@ function ListOfTickets() {
   const handleExportToJSONSelected = () => {
     const selectedTickets = tickets.filter(
       (ticket) =>
-        ticket.id !== undefined && selectedTicketsToExport.includes(ticket.id)
+        ticket.ticketId !== undefined &&
+        selectedTicketsToExport.includes(ticket.ticketId)
     );
     const json = JSON.stringify(selectedTickets, null, 2);
     // Code to download JSON file
@@ -226,11 +231,12 @@ function ListOfTickets() {
   const handleExportToCSVSelected = () => {
     const selectedTickets = tickets.filter(
       (ticket) =>
-        ticket.id !== undefined && selectedTicketsToExport.includes(ticket.id)
+        ticket.ticketId !== undefined &&
+        selectedTicketsToExport.includes(ticket.ticketId)
     );
     const csv = selectedTickets
       .map((ticket) => {
-        return `id: ${ticket.id}, Name: ${ticket.eventName}, Date: ${ticket.eventDate}, Purchase Date: ${ticket.purchaseDate}, Type: ${ticket.type}, Priority: ${ticket.ticketPriorityLevel}`;
+        return `id: ${ticket.ticketId}, Name: ${ticket.eventName}, Date: ${ticket.eventDate}, Purchase Date: ${ticket.purchaseDate}, Type: ${ticket.type}, Priority: ${ticket.ticketPriorityLevel}`;
       })
       .join("\n");
     // Code to download CSV file
@@ -345,21 +351,21 @@ function ListOfTickets() {
           </thead>
           <tbody>
             {tickets.map((ticket) => (
-              <tr key={ticket.id}>
+              <tr key={ticket.ticketId}>
                 <td>{ticket.eventName}</td>
                 <td>{ticket.eventDate}</td>
                 <td>
                   <button
                     type="button"
                     className="btn btn-primary"
-                    onClick={() => handleViewDetails(ticket.id)}
+                    onClick={() => handleViewDetails(ticket.ticketId)}
                   >
                     View
                   </button>
                   <button
                     type="button"
                     className="btn btn-warning"
-                    onClick={() => handleEdit(ticket.id)}
+                    onClick={() => handleEdit(ticket.ticketId)}
                   >
                     Edit
                   </button>
@@ -367,7 +373,7 @@ function ListOfTickets() {
                     <button
                       type="button"
                       className="btn btn-danger"
-                      onClick={() => handleDeleteTicket(ticket.id!)}
+                      onClick={() => handleDeleteTicket(ticket.ticketId!)}
                     >
                       Delete
                     </button>
@@ -375,17 +381,32 @@ function ListOfTickets() {
                   {isDeleteMultipleMode && (
                     <input
                       type="checkbox"
-                      checked={selectedTicketsToDelete.includes(ticket.id!)}
-                      onChange={() => handleCheckboxChangeForDelete(ticket.id!)}
+                      checked={selectedTicketsToDelete.includes(
+                        ticket.ticketId!
+                      )}
+                      onChange={() =>
+                        handleCheckboxChangeForDelete(ticket.ticketId!)
+                      }
                     ></input>
                   )}
                   {isExportMultipleMode && (
                     <input
                       type="checkbox"
-                      checked={selectedTicketsToExport.includes(ticket.id!)}
-                      onChange={() => handleCheckboxChangeForExport(ticket.id!)}
+                      checked={selectedTicketsToExport.includes(
+                        ticket.ticketId!
+                      )}
+                      onChange={() =>
+                        handleCheckboxChangeForExport(ticket.ticketId!)
+                      }
                     ></input>
                   )}
+                  <button
+                    type="button"
+                    className="btn btn-info"
+                    onClick={() => handleAttendees(ticket.ticketId!)}
+                  >
+                    Attendees
+                  </button>
                 </td>
               </tr>
             ))}

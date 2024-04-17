@@ -1,12 +1,8 @@
 import { useNavigate, useParams } from "react-router-dom";
 import Ticket from "../../entities/Ticket";
 import "./TicketDetails.css";
-import { getTicket } from "../../services/ApiService";
+import { getTicket } from "../../services/TicketService";
 import { useEffect, useState } from "react";
-
-interface TicketDetailsProp {
-  tickets: Ticket[];
-}
 
 function TicketDetails() {
   const navigate = useNavigate();

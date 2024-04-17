@@ -18,7 +18,7 @@ function ConfirmationModal({
     <div className="confirmation-modal-overlay">
       <div className="confirmation-modal">
         <div className="modal-content">
-          <p>Are you sure you want to delete this ticket?</p>
+          <p>Are you sure you want to delete this?</p>
           <div className="button-container">
             <button onClick={onConfirm} className="delete-button">
               Delete

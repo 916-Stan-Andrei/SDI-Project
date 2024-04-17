@@ -11,7 +11,7 @@ jest.mock("react-router-dom", () => ({
 
 const tickets: Ticket[] = [
   {
-    id: 1,
+    ticketId: 1,
     eventName: "Event 1",
     eventDate: "2024-03-20",
     purchaseDate: "2024-03-18",

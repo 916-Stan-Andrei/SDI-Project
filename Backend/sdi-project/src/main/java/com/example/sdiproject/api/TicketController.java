@@ -1,7 +1,10 @@
 package com.example.sdiproject.api;
 
 
+import com.example.sdiproject.DTOs.TicketRequestDTO;
+import com.example.sdiproject.DTOs.TicketResponseDTO;
 import com.example.sdiproject.entities.Ticket;
+import com.example.sdiproject.services.AttendeeService;
 import com.example.sdiproject.services.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,10 +24,11 @@ public class TicketController {
     private TicketService ticketService;
 
 
+
     @PostMapping("/addTicket")
-    public ResponseEntity<String> addTicket(@RequestBody Ticket ticket) {
+    public ResponseEntity<String> addTicket(@RequestBody TicketRequestDTO ticketRequestDTO) {
         try {
-            ticketService.saveTicket(ticket);
+            ticketService.saveTicket(ticketRequestDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body("Ticket added successfully");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -32,20 +36,16 @@ public class TicketController {
     }
 
     @GetMapping("/tickets")
-    public ResponseEntity<List<Ticket>> getAllTickets() {
-        try {
-            List<Ticket> tickets = ticketService.getAllTickets();
-            return ResponseEntity.ok(tickets);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+    public ResponseEntity<List<TicketResponseDTO>> getAllTickets() {
+        List<TicketResponseDTO> ticketResponseDTOS = ticketService.getAllTickets();
+        return ResponseEntity.ok(ticketResponseDTOS);
     }
 
     @GetMapping("/ticket/{ticketId}")
-    public ResponseEntity<Ticket> getTicket(@PathVariable int ticketId) {
+    public ResponseEntity<TicketResponseDTO> getTicket(@PathVariable int ticketId) {
         try {
-            Ticket ticket = ticketService.getTicketById(ticketId);
-            return ResponseEntity.ok(ticket);
+            TicketResponseDTO TicketResponseDTO = ticketService.getTicketById(ticketId);
+            return ResponseEntity.ok(TicketResponseDTO);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
@@ -89,15 +89,15 @@ public class TicketController {
 
     @Scheduled(fixedRate = 15000)
     public void addEntity() {
-        Random rand = new Random();
-        String name = "name" + rand.nextInt(1000);
-        String date = "date" + rand.nextInt(1000);
-        String pdate = "pdate" + rand.nextInt(1000);
-        String type = "type" + rand.nextInt(1000);
-        int priorityLevel = rand.nextInt(1000);
-
-        Ticket newTicket = new Ticket(name, date, pdate, type, priorityLevel);
-        ticketService.saveTicket(newTicket);
+//        Random rand = new Random();
+//        String name = "name" + rand.nextInt(1000);
+//        String date = "date" + rand.nextInt(1000);
+//        String pdate = "pdate" + rand.nextInt(1000);
+//        String type = "type" + rand.nextInt(1000);
+//        int priorityLevel = rand.nextInt(1000);
+//
+//        Ticket newTicket = new Ticket(name, date, pdate, type, priorityLevel);
+//        ticketService.saveTicket(newTicket);
     }
 }
 

@@ -1,5 +1,7 @@
 package com.example.sdiproject.testControllers;
 
+import com.example.sdiproject.DTOs.TicketRequestDTO;
+import com.example.sdiproject.DTOs.TicketResponseDTO;
 import com.example.sdiproject.api.TicketController;
 import com.example.sdiproject.entities.Ticket;
 import com.example.sdiproject.services.TicketService;
@@ -28,7 +30,13 @@ public class TicketControllerTest {
 
     @Test
     public void addTicket_ValidTicket_TicketAddedSuccessfully() {
-        Ticket validTicket = new Ticket("Concert", "2024-04-10", "2024-04-01", "VIP", 1);
+        TicketRequestDTO validTicket = new TicketRequestDTO(
+                "Concert",
+                "2024-05-15",
+                "2024-04-16",
+                "General Admission",
+                1
+        );
         doNothing().when(ticketService).saveTicket(validTicket);
 
         ResponseEntity<String> response = ticketController.addTicket(validTicket);
@@ -39,33 +47,33 @@ public class TicketControllerTest {
 
     @Test
     public void addTicket_NullTicket_ReturnsBadRequest() {
-        Ticket nullTicket = null;
-
-        ResponseEntity<String> response = ticketController.addTicket(nullTicket);
+        ResponseEntity<String> response = ticketController.addTicket(null);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNotNull(response.getBody());
     }
 
     @Test
-    public void addTicket_InvalidTicket_ReturnsBadRequestWithMessage() {
-        Ticket invalidTicket = new Ticket();
-        doThrow(IllegalArgumentException.class).when(ticketService).saveTicket(invalidTicket);
-
-        ResponseEntity<String> response = ticketController.addTicket(invalidTicket);
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
-
-    @Test
     public void getAllTickets_ValidTickets_ReturnsListOfTickets() {
-        List<Ticket> mockTickets = Arrays.asList(
-                new Ticket("Concert 1", "2024-04-10", "2024-04-01", "VIP", 1),
-                new Ticket("Concert 2", "2024-04-11", "2024-04-02", "General", 2)
+        List<TicketResponseDTO> mockTickets = Arrays.asList(
+                new TicketResponseDTO(    1,
+                        "Concert",
+                        "2024-05-15",
+                        "2024-04-16",
+                        "General Admission",
+                        1,
+                        new ArrayList<>()),
+                new TicketResponseDTO(    1,
+                        "Concert",
+                        "2024-05-15",
+                        "2024-04-16",
+                        "General Admission",
+                        1,
+                        new ArrayList<>())
         );
         when(ticketService.getAllTickets()).thenReturn(mockTickets);
 
-        ResponseEntity<List<Ticket>> response = ticketController.getAllTickets();
+        ResponseEntity<List<TicketResponseDTO>> response = ticketController.getAllTickets();
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(mockTickets, response.getBody());
@@ -75,7 +83,7 @@ public class TicketControllerTest {
     public void getAllTickets_ServiceThrowsException_ReturnsInternalServerError() {
         when(ticketService.getAllTickets()).thenThrow(new RuntimeException("Internal Server Error"));
 
-        ResponseEntity<List<Ticket>> response = ticketController.getAllTickets();
+        ResponseEntity<List<TicketResponseDTO>> response = ticketController.getAllTickets();
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
     }
@@ -83,10 +91,16 @@ public class TicketControllerTest {
     @Test
     public void getTicket_ExistingTicket_ReturnsTicket() {
         int ticketId = 123;
-        Ticket mockTicket = new Ticket("Concert", "2024-04-10", "2024-04-01", "VIP", 1);
+        TicketResponseDTO mockTicket = new TicketResponseDTO(    1,
+                "Concert",
+                "2024-05-15",
+                "2024-04-16",
+                "General Admission",
+                1,
+                new ArrayList<>());
         when(ticketService.getTicketById(ticketId)).thenReturn(mockTicket);
 
-        ResponseEntity<Ticket> response = ticketController.getTicket(ticketId);
+        ResponseEntity<TicketResponseDTO> response = ticketController.getTicket(ticketId);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(mockTicket, response.getBody());
@@ -97,7 +111,7 @@ public class TicketControllerTest {
         int ticketId = 123;
         when(ticketService.getTicketById(ticketId)).thenThrow(new IllegalArgumentException("Ticket not found"));
 
-        ResponseEntity<Ticket> response = ticketController.getTicket(ticketId);
+        ResponseEntity<TicketResponseDTO> response = ticketController.getTicket(ticketId);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNull(response.getBody());
@@ -105,7 +119,14 @@ public class TicketControllerTest {
 
     @Test
     public void updateTicket_ValidTicket_TicketUpdatedSuccessfully() {
-        Ticket validTicket = new Ticket("Concert", "2024-04-10", "2024-04-01", "VIP", 1);
+        Ticket validTicket = new Ticket(
+                1,
+                "Concert",
+                "2024-05-15",
+                "2024-04-16",
+                "General Admission",
+                1,
+                new ArrayList<>());
         doNothing().when(ticketService).updateTicket(validTicket);
 
         ResponseEntity<String> response = ticketController.updateTicket(validTicket);

@@ -1,12 +1,16 @@
 package com.example.sdiproject.services;
 
+import com.example.sdiproject.DTOs.TicketRequestDTO;
+import com.example.sdiproject.DTOs.TicketResponseDTO;
 import com.example.sdiproject.entities.Ticket;
+import com.example.sdiproject.mappers.TicketResponseDTOMapper;
 import com.example.sdiproject.repositories.TicketRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TicketService {
@@ -14,27 +18,32 @@ public class TicketService {
     @Autowired
     private TicketRepository ticketRepository;
 
-    public void saveTicket(Ticket ticket){
-        if (ticket == null) {
+    @Autowired
+    private TicketResponseDTOMapper ticketResponseDTOMapper;
+
+    public void saveTicket(TicketRequestDTO ticketRequestDTO){
+        if (ticketRequestDTO == null) {
             throw new IllegalArgumentException("Ticket object cannot be null");
         }
+        Ticket ticket = new Ticket();
+        ticket.setType(ticketRequestDTO.type());
+        ticket.setTicketPriorityLevel(ticketRequestDTO.ticketPriorityLevel());
+        ticket.setPurchaseDate(ticketRequestDTO.purchaseDate());
+        ticket.setEventDate(ticketRequestDTO.eventDate());
+        ticket.setEventName(ticketRequestDTO.eventName());
         ticketRepository.save(ticket);
     }
 
-    public List<Ticket> getAllTickets() {
-        List<Ticket> tickets = ticketRepository.findAll();
-        if (tickets.isEmpty()) {
-            throw new RuntimeException("No tickets found");
-        }
-        return tickets;
+    public List<TicketResponseDTO> getAllTickets() {
+        return ticketRepository.findAll().stream().map(ticketResponseDTOMapper).collect(Collectors.toList());
     }
 
-    public Ticket getTicketById(int ticketId) {
+    public TicketResponseDTO getTicketById(int ticketId) {
         Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
         if (ticket == null) {
             throw new IllegalArgumentException("Ticket with ID " + ticketId + " not found");
         }
-        return ticket;
+        return ticketResponseDTOMapper.apply(ticket);
     }
 
     public void updateTicket(Ticket ticket) {
@@ -47,6 +56,7 @@ public class TicketService {
         existingTicket.setPurchaseDate(ticket.getPurchaseDate());
         existingTicket.setTicketPriorityLevel(ticket.getTicketPriorityLevel());
         existingTicket.setType(ticket.getType());
+        existingTicket.setAttendees(ticket.getAttendees());
         ticketRepository.save(existingTicket);
     }
 

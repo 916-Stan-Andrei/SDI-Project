@@ -4,7 +4,7 @@ import Ticket from "../entities/Ticket";
 
 const tickets: Ticket[] = [
   {
-    id: 0,
+    ticketId: 0,
     eventName: "Event 1",
     eventDate: "eventDate 1",
     purchaseDate: "purchaseDate 1",
@@ -12,7 +12,7 @@ const tickets: Ticket[] = [
     ticketPriorityLevel: 1,
   },
   {
-    id: 1,
+    ticketId: 1,
     eventName: "Event 2",
     eventDate: "eventDate 2",
     purchaseDate: "purchaseDate 2",

@@ -7,11 +7,10 @@ import {
   fetchTickets,
   getTicket,
   updateTicket,
-} from "../../services/ApiService";
+} from "../../services/TicketService";
 
 function EditTicket() {
   const { id } = useParams<{ id: string }>();
-  console.log(id);
 
   const [ticket, setTicket] = useState<Ticket | null>(null);
 
@@ -80,7 +79,7 @@ function EditTicket() {
 
     // Create a new array with the updated ticket
     const updatedTicket: Ticket = {
-      id: ticket?.id,
+      ticketId: ticket?.ticketId,
       eventName,
       eventDate,
       purchaseDate,

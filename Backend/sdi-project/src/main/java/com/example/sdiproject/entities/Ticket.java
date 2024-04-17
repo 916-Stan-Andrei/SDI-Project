@@ -3,24 +3,26 @@ package com.example.sdiproject.entities;
 import jakarta.persistence.*;
 import lombok.ToString;
 
+import java.util.List;
+
 @Entity
 @Table(name = "TICKET")
 public class Ticket {
 
-    public Ticket(String eventName, String eventDate, String purchaseDate, String type, int ticketPriorityLevel) {
+    public Ticket(int ticketId, String eventName, String eventDate, String purchaseDate, String type, int ticketPriorityLevel, List<Attendee> attendees) {
+        this.ticketId = ticketId;
         this.eventName = eventName;
         this.eventDate = eventDate;
         this.purchaseDate = purchaseDate;
         this.type = type;
         this.ticketPriorityLevel = ticketPriorityLevel;
+        this.attendees = attendees;
     }
 
-    public Ticket() {
-
-    }
+    public Ticket() {}
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private int ticketId;
 
     @Column(name = "EVENT_NAME")
     private String eventName;
@@ -37,27 +39,36 @@ public class Ticket {
     @Column(name = "TICKET_PRIORITY_LEVEl")
     private int ticketPriorityLevel;
 
+    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL)
+    private List<Attendee> attendees;
+
     @Override
     public String toString() {
-        return "Event{" +
-                "id=" + id +
+        return "Ticket{" +
+                "id=" + ticketId +
                 ", eventName='" + eventName + '\'' +
                 ", eventDate='" + eventDate + '\'' +
                 ", purchaseDate='" + purchaseDate + '\'' +
                 ", type='" + type + '\'' +
                 ", ticketPriorityLevel=" + ticketPriorityLevel +
+                ", attendees=" + attendees +
                 '}';
     }
 
+    public List<Attendee> getAttendees() {
+        return attendees;
+    }
 
-
+    public void setAttendees(List<Attendee> attendees) {
+        this.attendees = attendees;
+    }
 
     public int getId() {
-        return id;
+        return ticketId;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.ticketId = id;
     }
 
     public String getEventName() {

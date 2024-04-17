@@ -1,9 +1,8 @@
 import { useState } from "react";
 import Ticket from "../../entities/Ticket";
 import { useNavigate } from "react-router-dom";
-import "./AddTicket.css";
 import toast from "react-hot-toast";
-import { addTicket, fetchTickets } from "../../services/ApiService";
+import { addTicket, fetchTickets } from "../../services/TicketService";
 
 function AddTicket() {
   const navigate = useNavigate();

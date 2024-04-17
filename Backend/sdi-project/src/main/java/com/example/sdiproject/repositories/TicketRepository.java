@@ -12,6 +12,6 @@ import java.util.List;
 public interface TicketRepository extends JpaRepository<Ticket, Integer> {
 
     @Modifying
-    @Query("delete from Ticket t where t.id in ?1")
+    @Query("delete from Ticket t where t.ticketId in ?1")
     void deleteTicketsWithIds(List<Integer> ids);
 }
