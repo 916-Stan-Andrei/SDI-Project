@@ -1,4 +1,4 @@
-package com.example.sdiproject.CorsConfig;
+package com.example.sdiproject.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
