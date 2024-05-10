@@ -1,6 +1,6 @@
 import "./App.css";
 import AddTicket from "./components/AddTicket/AddTicket";
-import HomePage from "./components/HomePage/HomePage";
+import AuthPage from "./components/Login/AuthPage";
 import ListOfTickets from "./components/ListOfTickets/ListOfTickets";
 import TicketDetails from "./components/TicketDetails/TicketDetails";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
@@ -10,12 +10,17 @@ import ListOfAttendees from "./components/Attendees/ListOfAttendees";
 import AttendeeDetails from "./components/AttendeeDetails/AttendeeDetails";
 import EditAttendee from "./components/EditAttendee/EditAttendee";
 import AddAttendee from "./components/AddAttendee/AddAttendee";
+import Register from "./components/Register/Register";
 
 function App() {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <HomePage />,
+      element: <AuthPage />,
+    },
+    {
+      path: "/register",
+      element: <Register />,
     },
     {
       path: "/tickets",
