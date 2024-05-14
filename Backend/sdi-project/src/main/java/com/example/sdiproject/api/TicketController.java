@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Random;
 
 @RestController
+@RequestMapping("/ticket")
 public class TicketController {
 
     @Autowired
@@ -25,7 +26,7 @@ public class TicketController {
 
 
 
-    @PostMapping("/addTicket")
+    @PostMapping("/add")
     public ResponseEntity<String> addTicket(@RequestBody TicketRequestDTO ticketRequestDTO) {
         try {
             ticketService.saveTicket(ticketRequestDTO);
@@ -35,13 +36,18 @@ public class TicketController {
         }
     }
 
-    @GetMapping("/tickets")
+    @GetMapping("/all")
     public ResponseEntity<List<TicketResponseDTO>> getAllTickets() {
         List<TicketResponseDTO> ticketResponseDTOS = ticketService.getAllTickets();
         return ResponseEntity.ok(ticketResponseDTOS);
     }
 
-    @GetMapping("/ticket/{ticketId}")
+    @GetMapping("/all/{userId}")
+    public  ResponseEntity<List<TicketResponseDTO>> getAllTicketsByUserId(@PathVariable int userId){
+        return ResponseEntity.ok(ticketService.getAllTicketsByUserId(userId));
+    }
+
+    @GetMapping("/{ticketId}")
     public ResponseEntity<TicketResponseDTO> getTicket(@PathVariable int ticketId) {
         try {
             TicketResponseDTO TicketResponseDTO = ticketService.getTicketById(ticketId);
@@ -51,7 +57,7 @@ public class TicketController {
         }
     }
 
-    @PutMapping("/updateTicket")
+    @PutMapping("/update")
     public ResponseEntity<String> updateTicket(@RequestBody Ticket ticket) {
         try {
             ticketService.updateTicket(ticket);
@@ -61,7 +67,7 @@ public class TicketController {
         }
     }
 
-    @DeleteMapping("/deleteTicket/{ticketId}")
+    @DeleteMapping("/delete/{ticketId}")
     public ResponseEntity<String> deleteTicket(@PathVariable int ticketId) {
         try {
             ticketService.deleteTicket(ticketId);
@@ -71,7 +77,7 @@ public class TicketController {
         }
     }
 
-    @DeleteMapping("/deleteTickets")
+    @DeleteMapping("/delete")
     public ResponseEntity<String> deleteTicketsByIds(@RequestBody List<Integer> ticketIds) {
         try {
             ticketService.deleteMultiple(ticketIds);

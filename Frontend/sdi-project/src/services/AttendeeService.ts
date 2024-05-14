@@ -1,10 +1,12 @@
-import api from '../api/tickets';
+import api from '../api/api';
 import Attendee from '../entities/Attendee';
+
+const attendeeAPI = "/attendee";
 
 export const fetchAttendeesForTicket = async (ticketId: number) =>{
     try {
         const token = localStorage.getItem('token');
-        const response = await api.get(`/attendee/t${ticketId}`,
+        const response = await api.get(`${attendeeAPI}/t${ticketId}`,
             {
                 headers: {
                     Authorization: `Bearer ${token}`
@@ -21,7 +23,7 @@ export const fetchAttendeesForTicket = async (ticketId: number) =>{
 export const getAttendeeById = async  (attendeeId: number) => {
     try{
         const token = localStorage.getItem('token');
-        const response = await api.get(`/attendee/${attendeeId}`,
+        const response = await api.get(`${attendeeAPI}/${attendeeId}`,
         {
             headers: {
                 Authorization: `Bearer ${token}`
@@ -38,7 +40,7 @@ export const getAttendeeById = async  (attendeeId: number) => {
 export const updateAttendee = async (attendee: Attendee) => {
     try{
         const token = localStorage.getItem('token');
-        await api.put(`/updateAttendee`, attendee,
+        await api.put(`${attendeeAPI}/update`, attendee,
         {
             headers: {
                 Authorization: `Bearer ${token}`
@@ -53,7 +55,7 @@ export const updateAttendee = async (attendee: Attendee) => {
 export const deleteAttendee = async (attendeeId: number) => {
     try{
         const token = localStorage.getItem('token');
-        await api.delete(`/deleteAttendee/${attendeeId}`,
+        await api.delete(`${attendeeAPI}/delete/${attendeeId}`,
         {
             headers: {
                 Authorization: `Bearer ${token}`
@@ -68,7 +70,7 @@ export const deleteAttendee = async (attendeeId: number) => {
 export const addAttendee = async(attendee: Attendee) => {
     try{
         const token = localStorage.getItem('token');
-        await api.post(`/addAttendee`, attendee,
+        await api.post(`${attendeeAPI}/add`, attendee,
         {
             headers: {
                 Authorization: `Bearer ${token}`

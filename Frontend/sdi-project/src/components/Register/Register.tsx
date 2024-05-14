@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./Register.css";
-import { register } from "../../services/AuthService";
+import { login, register } from "../../services/AuthService";
 import { useNavigate } from "react-router-dom";
 
 function Register() {
@@ -20,16 +20,20 @@ function Register() {
     });
   };
 
-  const handleSubmit = (e: { preventDefault: () => void }) => {
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
 
-    register(
+    await register(
       formData.firstName,
       formData.lastName,
       formData.email,
       formData.password
     );
-    navigate("/");
+    await login(formData.email, formData.password);
+    setTimeout(() => {
+      navigate("/tickets");
+    }, 3000);
+
     // Reset form after submission
     setFormData({
       firstName: "",

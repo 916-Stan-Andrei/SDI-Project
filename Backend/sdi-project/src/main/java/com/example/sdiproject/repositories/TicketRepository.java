@@ -14,4 +14,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
     @Modifying
     @Query("delete from Ticket t where t.ticketId in ?1")
     void deleteTicketsWithIds(List<Integer> ids);
+
+    List<Ticket> findAllByUserId(int userId);
 }

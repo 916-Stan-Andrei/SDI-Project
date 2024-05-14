@@ -5,6 +5,7 @@ public record TicketRequestDTO(
         String eventDate,
         String purchaseDate,
         String type,
-        int ticketPriorityLevel
+        int ticketPriorityLevel,
+        int userId
 ) {
 }

@@ -1,5 +1,6 @@
-import api from '../api/tickets';
+import api from '../api/api';
 import { handleError } from '../handlers/errorHandler';
+import { useUserStore } from '../zustandStores/userStore';
 
 export const login = async (email: String, password: String) => {
     try {
@@ -9,8 +10,13 @@ export const login = async (email: String, password: String) => {
                 password: password
             }
         );
-        const token = response.data.token;
+        const { token, role, userId } = response.data;
+        
         localStorage.setItem('token', token);
+
+        useUserStore.getState().setRole(role);
+        useUserStore.getState().setUserId(userId);
+        return response.data;
     }catch(error){
         handleError(error);
     }

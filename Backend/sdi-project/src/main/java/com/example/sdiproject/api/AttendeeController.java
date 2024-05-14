@@ -13,12 +13,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Controller
+@RequestMapping("/attendee")
 public class AttendeeController {
 
     @Autowired
     private AttendeeService attendeeService;
 
-    @PostMapping("/addAttendee")
+    @PostMapping("/add")
     public ResponseEntity<String> addAttendee(@RequestBody AttendeeRequestDTO attendeeRequestDTO){
         try {
             attendeeService.saveAttendee(attendeeRequestDTO);
@@ -28,14 +29,14 @@ public class AttendeeController {
         }
     }
 
-    @GetMapping("/attendees")
+    @GetMapping("/all")
     public ResponseEntity<List<AttendeeResponseDTO>> getAllAttendees(@RequestParam(required = false) String sortOrder){
         List<AttendeeResponseDTO> attendees = attendeeService.getAllAttendees(sortOrder);
         return ResponseEntity.ok(attendees);
 
     }
 
-    @GetMapping("/attendee/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<?> getAttendeeById(@PathVariable int id){
         try{
             AttendeeResponseDTO AttendeeResponseDTO = attendeeService.getAttendeeById(id);
@@ -45,13 +46,13 @@ public class AttendeeController {
         }
     }
 
-    @GetMapping("/attendee/t{ticketId}")
+    @GetMapping("/t{ticketId}")
     public ResponseEntity<List<AttendeeResponseDTO>> getAllAttendeesByTicketId(@PathVariable int ticketId){
         List<AttendeeResponseDTO> attendeeResponseDTOS = attendeeService.getAllAttendeesByTicketId(ticketId);
         return ResponseEntity.ok(attendeeResponseDTOS);
     }
 
-    @PutMapping("/updateAttendee")
+    @PutMapping("/update")
     public ResponseEntity<String> updateAttendee(@RequestBody Attendee newAttendee){
         try{
             System.out.println(newAttendee);
@@ -62,7 +63,7 @@ public class AttendeeController {
         }
     }
 
-    @DeleteMapping("/deleteAttendee/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteAttendee(@PathVariable int id){
         try{
             attendeeService.deleteAttendeeById(id);

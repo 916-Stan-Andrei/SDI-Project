@@ -1,5 +1,6 @@
 package com.example.sdiproject.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.ToString;
 
@@ -9,19 +10,10 @@ import java.util.List;
 @Table(name = "TICKET")
 public class Ticket {
 
-    public Ticket(int ticketId, String eventName, String eventDate, String purchaseDate, String type, int ticketPriorityLevel, List<Attendee> attendees) {
-        this.ticketId = ticketId;
-        this.eventName = eventName;
-        this.eventDate = eventDate;
-        this.purchaseDate = purchaseDate;
-        this.type = type;
-        this.ticketPriorityLevel = ticketPriorityLevel;
-        this.attendees = attendees;
-    }
-
     public Ticket() {}
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonProperty("ticketId")
     private int ticketId;
 
     @Column(name = "EVENT_NAME")
@@ -38,6 +30,29 @@ public class Ticket {
 
     @Column(name = "TICKET_PRIORITY_LEVEl")
     private int ticketPriorityLevel;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    public Ticket(int ticketId, String eventName, String eventDate, String purchaseDate, String type, int ticketPriorityLevel, User user, List<Attendee> attendees) {
+        this.ticketId = ticketId;
+        this.eventName = eventName;
+        this.eventDate = eventDate;
+        this.purchaseDate = purchaseDate;
+        this.type = type;
+        this.ticketPriorityLevel = ticketPriorityLevel;
+        this.user = user;
+        this.attendees = attendees;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL)
     private List<Attendee> attendees;

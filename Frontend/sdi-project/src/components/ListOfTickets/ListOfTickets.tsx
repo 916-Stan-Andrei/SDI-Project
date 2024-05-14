@@ -7,12 +7,16 @@ import {
   deleteMultiple,
   deleteTicket,
   fetchTickets,
+  fetchTicketsByUserId,
 } from "../../services/TicketService";
 import useTicketStore from "../../zustandStores/ticketStore";
 import { Client } from "@stomp/stompjs";
+import { useUserStore } from "../../zustandStores/userStore";
 
 function ListOfTickets() {
   const tickets = useTicketStore((state) => state.tickets);
+  const userRole = useUserStore((state) => state.role);
+  const userId = useUserStore((state) => state.userId);
 
   const [loading, setLoading] = useState(true);
 
@@ -37,7 +41,11 @@ function ListOfTickets() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await fetchTickets();
+        if (userRole == "ADMIN") {
+          await fetchTickets();
+        } else if (userRole == "USER") {
+          await fetchTicketsByUserId(userId);
+        }
       } catch (error) {
         console.error("Error fetching tickets:", error);
       } finally {
@@ -275,6 +283,7 @@ function ListOfTickets() {
           type="button"
           className="btn btn-primary"
           onClick={handleAddTicket}
+          disabled={userRole !== "ADMIN"}
         >
           Add
         </button>
@@ -283,6 +292,7 @@ function ListOfTickets() {
             type="button"
             className="btn btn-danger"
             onClick={toggleDeleteMultipleMode}
+            disabled={userRole !== "ADMIN"}
           >
             {!isDeleteMultipleMode ? "Delete Multiple" : "Normal Delete"}
           </button>
@@ -366,6 +376,7 @@ function ListOfTickets() {
                     type="button"
                     className="btn btn-warning"
                     onClick={() => handleEdit(ticket.ticketId)}
+                    disabled={userRole !== "ADMIN"}
                   >
                     Edit
                   </button>
@@ -374,6 +385,7 @@ function ListOfTickets() {
                       type="button"
                       className="btn btn-danger"
                       onClick={() => handleDeleteTicket(ticket.ticketId!)}
+                      disabled={userRole !== "ADMIN"}
                     >
                       Delete
                     </button>
@@ -404,6 +416,7 @@ function ListOfTickets() {
                     type="button"
                     className="btn btn-info"
                     onClick={() => handleAttendees(ticket.ticketId!)}
+                    disabled={userRole !== "ADMIN"}
                   >
                     Attendees
                   </button>

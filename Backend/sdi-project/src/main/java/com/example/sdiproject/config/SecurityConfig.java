@@ -1,6 +1,5 @@
 package com.example.sdiproject.config;
 
-import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,9 +23,17 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
-                        authorizationManagerRequestMatcherRegistry.requestMatchers("/auth/**").permitAll()
+                        authorizationManagerRequestMatcherRegistry
+                                .requestMatchers("/auth/**",
+                                        "/ticket/all",
+                                        "/ticket/{ticketId}",
+                                        "/ticket/all/{userId}",
+                                        "/attendee//t{ticketId}",
+                                        "/attendee/{id}").permitAll()
+                                .requestMatchers("/ticket/**", "/attendee/**").hasAnyAuthority("ADMIN")
                 .anyRequest().authenticated())
-                .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

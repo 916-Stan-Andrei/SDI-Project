@@ -37,13 +37,12 @@ public class AttendeeService {
         attendee.setFirstName(attendeeRequestDTO.firstName());
         attendee.setBirthDate(attendeeRequestDTO.birthDate());
 
-        // Check if the Ticket exists before setting it
+
         Optional<Ticket> ticketOptional = ticketRepository.findById(attendeeRequestDTO.ticketId());
         if (ticketOptional.isPresent()) {
             attendee.setTicket(ticketOptional.get());
             attendeeRepository.save(attendee);
         } else {
-            // Handle the case where the Ticket does not exist
             throw new IllegalArgumentException("Ticket with ID " + attendeeRequestDTO.ticketId() + " not found!");
         }
     }

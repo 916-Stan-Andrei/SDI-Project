@@ -20,6 +20,7 @@ public class ApplicationConfig {
 
     private final UserRepository userRepository;
 
+    //Factory Method that produces Spring-managed beans.
     @Bean
     public UserDetailsService userDetailsService(){
         return username -> userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("User not found!"));

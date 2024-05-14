@@ -3,13 +3,16 @@ package com.example.sdiproject.services;
 import com.example.sdiproject.DTOs.TicketRequestDTO;
 import com.example.sdiproject.DTOs.TicketResponseDTO;
 import com.example.sdiproject.entities.Ticket;
+import com.example.sdiproject.entities.User;
 import com.example.sdiproject.mappers.TicketResponseDTOMapper;
 import com.example.sdiproject.repositories.TicketRepository;
+import com.example.sdiproject.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,6 +24,9 @@ public class TicketService {
     @Autowired
     private TicketResponseDTOMapper ticketResponseDTOMapper;
 
+    @Autowired
+    private UserRepository userRepository;
+
     public void saveTicket(TicketRequestDTO ticketRequestDTO){
         if (ticketRequestDTO == null) {
             throw new IllegalArgumentException("Ticket object cannot be null");
@@ -31,11 +37,25 @@ public class TicketService {
         ticket.setPurchaseDate(ticketRequestDTO.purchaseDate());
         ticket.setEventDate(ticketRequestDTO.eventDate());
         ticket.setEventName(ticketRequestDTO.eventName());
+        Optional<User> optionalUser = userRepository.findById(ticketRequestDTO.userId());
+        if (optionalUser.isPresent()) {
+            ticket.setUser(optionalUser.get());
+        } else {
+            throw new IllegalArgumentException("User with ID " + ticketRequestDTO.userId() + " not found!");
+        }
+
         ticketRepository.save(ticket);
     }
 
     public List<TicketResponseDTO> getAllTickets() {
         return ticketRepository.findAll().stream().map(ticketResponseDTOMapper).collect(Collectors.toList());
+    }
+
+    public List<TicketResponseDTO> getAllTicketsByUserId(int userId){
+        return ticketRepository.findAllByUserId(userId)
+                .stream()
+                .map(ticketResponseDTOMapper)
+                .toList();
     }
 
     public TicketResponseDTO getTicketById(int ticketId) {
