@@ -29,7 +29,8 @@ public class SecurityConfig {
                                         "/ticket/{ticketId}",
                                         "/ticket/all/{userId}",
                                         "/attendee//t{ticketId}",
-                                        "/attendee/{id}").permitAll()
+                                        "/attendee/{id}",
+                                        "/user/**").permitAll()
                                 .requestMatchers("/ticket/**", "/attendee/**").hasAnyAuthority("ADMIN")
                 .anyRequest().authenticated())
                 .sessionManagement(session -> session
