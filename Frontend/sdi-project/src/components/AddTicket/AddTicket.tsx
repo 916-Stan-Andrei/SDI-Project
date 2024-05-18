@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Ticket from "../../entities/Ticket";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { addTicket, fetchTickets } from "../../services/TicketService";
+import { getAllUserEmails, getUserIdByEmail } from "../../services/UserService";
 
 function AddTicket() {
   const navigate = useNavigate();
@@ -12,6 +13,16 @@ function AddTicket() {
   const [purchaseDate, setPurchaseDate] = useState("");
   const [type, setType] = useState("");
   const [ticketPriorityLevel, setTicketPriorityLevel] = useState("");
+  const [selectedEmail, setSelectedEmail] = useState("");
+  const [userEmails, setUserEmails] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchEmails = async () => {
+      const emails = await getAllUserEmails();
+      setUserEmails(emails);
+    };
+    fetchEmails();
+  }, []);
 
   const handleBackToHome = () => {
     navigate("/tickets");
@@ -30,18 +41,21 @@ function AddTicket() {
       return;
     }
 
-    // Check if ticketPriorityLevel is not a number
     if (isNaN(Number(ticketPriorityLevel))) {
       toast.error("Ticket Priority Level must be a numerical value.");
       return;
     }
+    const userId = await getUserIdByEmail(selectedEmail);
+
     const newTicket: Ticket = {
       eventName,
       eventDate,
       purchaseDate,
       type,
-      ticketPriorityLevel: Number(ticketPriorityLevel), // Convert ticketPriorityLevel to a number
+      ticketPriorityLevel: Number(ticketPriorityLevel),
+      userId,
     };
+    console.log(newTicket);
     await addTicket(newTicket);
     await fetchTickets();
     toast.success("Ticket added!");
@@ -101,6 +115,22 @@ function AddTicket() {
             value={ticketPriorityLevel}
             onChange={(e) => setTicketPriorityLevel(e.target.value)}
           />
+        </div>
+        <div className="form-group">
+          <label htmlFor="userEmail">User Email:</label>
+          <select
+            id="userEmail"
+            className="form-control"
+            value={selectedEmail}
+            onChange={(e) => setSelectedEmail(e.target.value)}
+          >
+            <option value="">Select an email</option>
+            {userEmails.map((email) => (
+              <option key={email} value={email}>
+                {email}
+              </option>
+            ))}
+          </select>
         </div>
         <button type="submit" className="btn btn-success">
           Add Ticket

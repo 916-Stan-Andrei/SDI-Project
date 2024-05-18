@@ -1,6 +1,7 @@
 import api from '../api/api';
 import { handleError } from '../handlers/errorHandler';
 import { useUserStore } from '../zustandStores/userStore';
+import { fetchRoleFromToken, fetchUserIdFromToken } from './TokenService';
 
 export const login = async (email: String, password: String) => {
     try {
@@ -10,12 +11,14 @@ export const login = async (email: String, password: String) => {
                 password: password
             }
         );
-        const { token, role, userId } = response.data;
+        const token = response.data.token;
         
         localStorage.setItem('token', token);
+        const userID = await fetchUserIdFromToken(token);
+        const role = await fetchRoleFromToken(token);
 
         useUserStore.getState().setRole(role);
-        useUserStore.getState().setUserId(userId);
+        useUserStore.getState().setUserId(userID);
         return response.data;
     }catch(error){
         handleError(error);

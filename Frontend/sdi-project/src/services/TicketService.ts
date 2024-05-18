@@ -2,7 +2,7 @@ import api from '../api/api';
 import Ticket from '../entities/Ticket';
 import useTicketStore from '../zustandStores/ticketStore';
 
-const ticketAPI = "ticket";
+const ticketAPI = "/ticket";
 
 
 export const fetchTickets = async () => {

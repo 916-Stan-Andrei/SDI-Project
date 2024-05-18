@@ -8,6 +8,7 @@ import {
   getTicket,
   updateTicket,
 } from "../../services/TicketService";
+import { getAllUserEmails, getUserIdByEmail } from "../../services/UserService";
 
 function EditTicket() {
   const { id } = useParams<{ id: string }>();
@@ -35,9 +36,11 @@ function EditTicket() {
   const [purchaseDate, setPurchaseDate] = useState("");
   const [type, setType] = useState("");
   const [ticketPriorityLevel, setTicketPriorityLevel] = useState("");
+  const [selectedEmail, setSelectedEmail] = useState("");
+  const [userEmails, setUserEmails] = useState<string[]>([]);
 
   useEffect(() => {
-    if (ticket) {
+    if (ticket && ticket.userId) {
       setEventName(ticket.eventName);
       setEventDate(ticket.eventDate);
       setPurchaseDate(ticket.purchaseDate);
@@ -45,6 +48,14 @@ function EditTicket() {
       setTicketPriorityLevel(ticket.ticketPriorityLevel.toString());
     }
   }, [ticket]);
+
+  useEffect(() => {
+    const fetchEmails = async () => {
+      const emails = await getAllUserEmails();
+      setUserEmails(emails);
+    };
+    fetchEmails();
+  }, []);
 
   const handleEdit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -77,6 +88,8 @@ function EditTicket() {
       return;
     }
 
+    const userId = await getUserIdByEmail(selectedEmail);
+
     // Create a new array with the updated ticket
     const updatedTicket: Ticket = {
       ticketId: ticket?.ticketId,
@@ -84,7 +97,8 @@ function EditTicket() {
       eventDate,
       purchaseDate,
       type,
-      ticketPriorityLevel: Number(ticketPriorityLevel), // Convert ticketPriorityLevel to a number
+      ticketPriorityLevel: Number(ticketPriorityLevel),
+      userId,
     };
 
     await updateTicket(updatedTicket);
@@ -150,6 +164,22 @@ function EditTicket() {
             value={ticketPriorityLevel}
             onChange={(e) => setTicketPriorityLevel(e.target.value)}
           />
+        </div>
+        <div className="form-group">
+          <label htmlFor="userEmail">User Email:</label>
+          <select
+            id="userEmail"
+            className="form-control"
+            value={selectedEmail}
+            onChange={(e) => setSelectedEmail(e.target.value)}
+          >
+            <option value="">Select an email</option>
+            {userEmails.map((email) => (
+              <option key={email} value={email}>
+                {email}
+              </option>
+            ))}
+          </select>
         </div>
         <button type="submit" className="btn btn-warning">
           Edit Ticket

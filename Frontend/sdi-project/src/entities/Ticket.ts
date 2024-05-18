@@ -6,6 +6,7 @@ interface Ticket {
     purchaseDate: string;
     type: string;
     ticketPriorityLevel: number;
+    userId?:number;
 }
 
 export default Ticket;
